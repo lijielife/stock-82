@@ -35,9 +35,11 @@
             }
         })
 
+        var base_url = window.location.origin;
+
         var strings = $(location).attr('href').split("/")
         var id = strings[strings.length - 1]
-        $.getJSON(process.env.APP_URL + "api/poll/" + id,function (data) {
+        $.getJSON(base_url + "/api/poll/" + id,function (data) {
 
             vm.poll = data
             vm.selected_id = data.options[0]._id
