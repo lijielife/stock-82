@@ -1,6 +1,8 @@
 var express = require('express');
 var routes = require('./routes/index');
 
+require('dotenv').config({path: __dirname + '/.env'})
+
 var path = require('path');
 // var favicon = require('serve-favicon');
 var logger = require('morgan');
@@ -12,6 +14,8 @@ var passport = require('passport')
 var User = require('./models/user')
 
 var app = express();
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -41,9 +45,9 @@ passport.deserializeUser(function (id, done) {
 });
 
 passport.use(new GithubStrategy({
-        clientID: "77d63d6f5c6b5a890ca2",
-        clientSecret: "1669602fedcf9ad8466c4539c200d5821432982b",
-        callbackURL: "http://localhost:3000/auth/github/callback"
+        clientID: process.env.GITHUB_KEY,
+        clientSecret: process.env.GITHUB_SECRET,
+        callbackURL:  process.env.APP_URL + "auth/github/callback"
     },
     function (token, refreshToken, profile, done) {
         process.nextTick(function () {

@@ -1,5 +1,4 @@
 var Poll = require('./../models/poll');
-var setting = require("./setting")
 
 exports.newPoll = function(req, res) {
     res.render("poll/newpoll",{title:"New Poll",user:req.session.user})
@@ -67,7 +66,7 @@ exports.myPolls = function (req, res) {
             res.redirect("/")
         } else {
             console.log(doc)
-            res.render("poll/mypolls",{title:"My Polls",user:req.session.user, polls:doc,setting:setting})
+            res.render("poll/mypolls",{title:"My Polls",user:req.session.user, polls:doc,url:process.env.APP_URL})
         }
     })
 }
@@ -79,7 +78,7 @@ exports.allPolls = function (req, res) {
             res.redirect("/")
         } else {
             console.log(doc)
-            res.render("index",{title:"Home",user:req.session.user, polls:doc,setting:setting})
+            res.render("index",{title:"Home",user:req.session.user, polls:doc,url:process.env.APP_URL})
         }
     })
 }

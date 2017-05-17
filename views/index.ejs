@@ -3,7 +3,7 @@
 <div class="well jumbotron">
   <ul class="list-group">
       <%for (var i =0; i < polls.length; i ++) {%>
-    <a href="<%=setting.url%>/polls/<%=polls[i]._id%>" class="list-group-item"><%=polls[i].title%></a>
+    <a href="<%=url%>polls/<%=polls[i]._id%>" class="list-group-item"><%=polls[i].title%></a>
       <%}%>
   </ul>
 </div>
