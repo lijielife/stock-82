@@ -37,8 +37,7 @@
 
         var strings = $(location).attr('href').split("/")
         var id = strings[strings.length - 1]
-        console.log("localhost:3000/api/poll/" + id)
-        $.getJSON("http://localhost:3000/api/poll/" + id,function (data) {
+        $.getJSON(process.env.APP_URL + "api/poll/" + id,function (data) {
 
             vm.poll = data
             vm.selected_id = data.options[0]._id
