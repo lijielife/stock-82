@@ -1,11 +1,274 @@
 <% include header.ejs %>
 
-<div class="well jumbotron">
-  <ul class="list-group">
-      <%for (var i =0; i < polls.length; i ++) {%>
-    <a href="<%=url%>polls/<%=polls[i]._id%>" class="list-group-item"><%=polls[i].title%></a>
-      <%}%>
-  </ul>
+<div class="row" id="container">
+    <div class="col-md-10 col-lg-10 col-sm-10 col-xs-10 col-md-offset-1 col-lg-offset-1 col-sm-offset-1 col-xs-offset-1 panel">
+        <div class="stock-panel">
+            <label>Stock</label>
+
+            <svg  width="100%" height="400"></svg>
+
+            <div class="stock-list">
+
+                <div v-for="(item,index) in stocks" class="alert alert-warning alert-dismissible col-md-3" role="alert">
+                    <button type="button" class="close" @click="del" :data-index="index"><span aria-hidden="true">&times;</span></button>
+                    <strong>{{item.stock}}</strong>
+                </div>
+
+
+                <div class="alert alert-warning alert-dismissible col-md-4  row" role="alert" style="display: flex;align-items: center;padding: 5px">
+                    <div class="col-md-8 col-lg-8">
+                        <input class="form-control input-sm" type="text" v-model="new_stock" placeholder="Stock Code">
+                    </div>
+                    <div class="col-md-4 col-lg-4">
+                        <button type="button" @click="add" class="btn btn-xs btn-success">Add</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
 </div>
 
+<script>
+    $(function () {
+        var date = new Date()
+        var year = date.getFullYear()
+        var month = date.getMonth() + 1
+        var day = date.getDate()
+
+        if (month < 10) {
+            month = "0" + month
+        }
+
+        var today = year + "-" + month + "-" + (day - 1)
+
+        var last_year_today = (year - 1) + "-" + month + "-" + (day - 1)
+
+        var parseTime = d3.timeParse("%Y-%m-%d");
+
+        var updateSVG = function(){
+            d3.select("svg").selectAll("*").remove()
+            var box = d3.select("svg").node().getBoundingClientRect()
+
+            var width = box.width
+            var height = box.height
+
+            var svg=d3.select("svg")
+
+            var dataset=vm.stocks
+
+            var padding={top:70, right:30, bottom: 70, left:0};
+            var stockmax=0;
+            for(var i=0;i<dataset.length;i++){
+                var currStock=d3.max(dataset[i].data,function(d){
+                    return d[1];
+                });
+
+                if(currStock>stockmax)
+                    stockmax=currStock;
+            }
+
+
+            var xScale=d3.scaleTime()
+                .domain([parseTime(last_year_today),parseTime(today)])
+                .rangeRound([0,width-padding.left-padding.right]);
+
+            var yScale=d3.scaleLinear()
+                .domain([0,stockmax*1.1])
+                .rangeRound([height-padding.bottom-padding.top,0]);
+
+            var linePath=d3.line()//创建一个直线生成器
+                    .x(function(d){
+                        return xScale(d[0]);
+                    })
+                    .y(function(d){
+                        return yScale(d[1]);
+                    });
+
+//定义两个颜色
+            var colors = d3.scaleOrdinal(d3.schemeCategory10)
+
+
+            var g = svg.append("g")
+                .attr("transform","translate("+padding.left+","+padding.top+")")
+
+
+            g.selectAll("path")
+                .data(dataset)
+                .enter()
+                .append("path")
+                .attr("d",function(d){
+                    return linePath(d.data);
+                    //返回线段生成器得到的路径
+                })
+                .attr("fill","none")
+                .attr("stroke-width",2)
+                .attr("stroke",function (d, i) {
+                    return colors(i)
+                });
+
+            var xAxis=d3.axisBottom(xScale)
+                .ticks(d3.timeMonth.every(1))
+                .tickFormat(d3.timeFormat("%b %d"))
+
+            var yAxis=d3.axisRight(yScale)
+
+//添加一个g用于放x轴
+            g.append("g")
+            .attr("class","axis")
+                .attr("transform","translate(0,"+(height-padding.top - padding.bottom)+")")
+                .call(xAxis);
+
+            g.append("g")
+                    .attr("class","axis")
+                .call(yAxis);
+
+            var tip = g.append("g")
+            tip.append("text")
+                .attr("class","tip-date")
+                .attr("fill","white")
+                .attr("y",10)
+                .attr("font-size",10)
+
+
+
+            g.append("rect")
+                .attr("class", "overlay")
+                .attr("width", width- padding.left - padding.right)
+                .attr("height", height - padding.top - padding.bottom)
+//                .on("mouseover", function() { focus.style("display", null); })
+//                .on("mouseout", function() { focus.style("display", "none"); })
+                .on("mousemove", function () {
+                    var that = this
+                    var x0 = xScale.invert(d3.mouse(that)[0])
+
+                    g.selectAll("line.pointer").remove()
+                    g.append("line")
+                        .attr("class","pointer")
+                        .attr("x1",xScale(x0))
+                        .attr("x2",xScale(x0))
+                        .attr("y1",0)
+                        .attr("y2",height - padding.top - padding.bottom)
+                        .attr("stroke","#fff")
+                        .attr("stroke-width",1)
+
+                    console.log(xScale(x0))
+
+                    if (xScale(x0) < 430){
+                        tip.attr("transform","translate(" + (xScale(x0) + 20) + "," + d3.mouse(that)[1] + ")")
+                    } else {
+                        tip.attr("transform","translate(" + (xScale(x0) - 100) + "," + d3.mouse(that)[1] + ")")
+                    }
+
+
+                    var date = x0.toString().substr(0,15)
+
+                    tip.select("text.tip-date")
+                        .text(date)
+
+                    tip.selectAll("text.item").remove()
+
+                    tip.selectAll("text.item")
+                        .data(dataset)
+                        .enter()
+                        .append("text")
+                        .attr("class","item")
+                        .text(function(d, i){
+
+                            var filtered = d.data.filter(function (d_item) {
+                                return d_item[0].toString().substr(0,15) == x0.toString().substr(0,15)
+                            })
+
+
+
+                            if (filtered.length > 0) {
+                                return d.stock + ":" + filtered[0][1]
+                            }
+                        })
+                        .attr("y",function (d, i) {
+                            return 20 + i * 10
+                        })
+                        .attr("x",10)
+                        .attr("font-size",9)
+                        .attr("fill","white")
+
+                    tip.selectAll("circle.item").remove()
+
+                    tip.selectAll("circle.item")
+                        .data(dataset)
+                        .enter()
+                        .append("circle")
+                        .attr("class","item")
+                        .attr("cx",4)
+                        .attr("cy",function (d, i) {
+                            return 17 + i * 10
+                        })
+                        .attr("r",function (d, i) {
+                            var filtered = d.data.filter(function (d_item) {
+                                return d_item[0].toString().substr(0,15) == x0.toString().substr(0,15)
+                            })
+                            if (filtered.length > 0) {
+                                return 4
+                            } else {
+                                return 0
+                            }
+                        })
+                        .attr("fill",function (d, i) {
+                            return colors(i)
+                        })
+
+                });
+
+
+
+        }
+
+
+        var vm = new Vue({
+            el:"#container",
+            data:{
+                new_stock:"",
+                stocks:[],
+            },
+            methods:{
+                del:function (e) {
+                    var index = e.srcElement.offsetParent.dataset.index
+                    this.stocks.pop(+index)
+                    updateSVG()
+
+                },
+                add:function(e){
+                    var that = this
+                    if (that.new_stock) {
+                        var url = "https://www.quandl.com/api/v3/datasets/WIKI/" + that.new_stock + "/data.json?api_key=uGSt7WDX8j6spmza5KYq&start_date=" + last_year_today + "&end_date=" + today
+                        $.ajax({
+                            url: url,
+                            method: 'GET',
+                            success: function(data){
+                                var obj = {}
+                                obj.stock = that.new_stock
+                                obj.data = data.dataset_data.data.map(function (item) {
+                                    var obj = []
+                                    obj.push(parseTime(item[0]))
+                                    obj.push(item[4])
+                                    return obj
+                                })
+                                that.stocks.push(obj)
+                                that.new_stock = ""
+                                console.log(that.stocks)
+
+                                updateSVG()
+
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert("Please input legal code")
+                            }
+                        })
+                    }
+                }
+            }
+        })
+    })
+</script>
 <% include footer.ejs %>

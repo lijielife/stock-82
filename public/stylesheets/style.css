@@ -1,18 +1,93 @@
 body {
-  padding: 0px 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #FFA726;
+  padding: 60px;
 }
 
-.tooltip {
-  position: absolute;
-  text-align: left;
-  width: auto;
-  height: auto;
-  padding: 3px 5px 3px 5px;
-  font: 1em sans-serif;
-  border: 0px;
-  border-radius: 5px;
-  pointer-events: none;
-  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
-  background-color: lightsteelblue;
+.panel {
+  background-color: #263238;
 }
+
+.stock-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.stock-panel label{
+  color: white;
+}
+
+.stock-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.stock-panel-top-zoom {
+  display: flex;
+  align-items: center;
+}
+
+.stock-panel-top-zoom label{
+  margin-right: 5px;
+}
+
+.stock-panel-top-zoom button{
+  margin-right: 5px;
+}
+
+.stock-panel-top-range {
+  display: flex;
+  align-items: center;
+}
+
+.stock-panel-top-range label{
+  margin-right: 5px;
+}
+
+.stock-panel-top-range input{
+  margin-right: 5px;
+}
+
+.stock-list {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+}
+
+.stock-list > div {
+
+  height: 60px;
+}
+
+.axis line{
+  stroke: white;
+}
+
+.axis path{
+  stroke: white;
+}
+
+.axis text{
+  fill: white;
+}
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+/*div.tooltip {*/
+  /*position: absolute;*/
+  /*text-align: center;*/
+  /*width: 60px;*/
+  /*height: 28px;*/
+  /*padding: 2px;*/
+  /*font: 12px sans-serif;*/
+  /*background: lightsteelblue;*/
+  /*border: 0px;*/
+  /*border-radius: 8px;*/
+  /*pointer-events: none;*/
+/*}*/
