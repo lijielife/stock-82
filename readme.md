@@ -1,1 +1,1 @@
-demo website:https://stock-gaoljie.c9users.io/
+demo website:https://gaoljie-stocks.herokuapp.com/
